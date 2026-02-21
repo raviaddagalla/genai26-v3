@@ -1,0 +1,36 @@
+{
+  "Ravi": {
+    "password": "1234",
+    "session_id": "9c668a26-47c3-413f-a020-0313d5d2fefa",
+    "created_at": "2026-02-21T23:16:23.726742",
+    "last_login": "2026-02-21T23:17:38.457409"
+  },
+  "test": {
+    "password": "test",
+    "session_id": "c67836d7-6130-4d91-ad8c-fa50ec32482b",
+    "created_at": "2026-02-21T23:26:00.962190",
+    "last_login": "2026-02-21T23:36:49.964330",
+    "brand_session_id": "b4a03079-0cd2-4421-9648-7ee17d028d6f"
+  },
+  "testuser": {
+    "password": "testpass123",
+    "session_id": "249fbc08-e62b-4cf3-987f-d45ad93ca008",
+    "brand_session_id": "aa4a29a0-fea5-4550-ac5f-04351e1036d7",
+    "created_at": "2026-02-21T23:58:15.502654",
+    "last_login": "2026-02-22T02:24:00.060877"
+  },
+  "miniuser": {
+    "password": "minipass",
+    "session_id": "f0b5667a-570a-43bc-acfe-a13b6993bda1",
+    "brand_session_id": "166e21b2-21ac-4f30-ba78-b8ff88995653",
+    "created_at": "2026-02-22T00:57:52.718482",
+    "last_login": "2026-02-22T02:24:06.263659"
+  },
+  "demo": {
+    "password": "testpass123",
+    "session_id": "9343b240-51cd-436b-92d9-2ce466e160d2",
+    "brand_session_id": null,
+    "created_at": "2026-02-22T01:45:45.306571",
+    "last_login": null
+  }
+}

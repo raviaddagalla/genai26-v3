@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="page-title">Brand Template</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Bebas Neue (display) + DM Sans (body) + Instrument Serif (accent) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── CSS Custom Properties injected via JS ─── */
+    :root {
+      --primary:   #0f0f0f;
+      --secondary: #1a1a2e;
+      --accent:    #e94560;
+      --bg:        #0a0a0a;
+      --text:      #f0f0f0;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ─── NOISE TEXTURE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.035;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* ─── TYPOGRAPHY ─── */
+    .font-display { font-family: 'Bebas Neue', cursive; }
+    .font-serif-italic { font-family: 'Instrument Serif', serif; font-style: italic; }
+
+    /* ─── MARQUEE ─── */
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: marquee 28s linear infinite;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ─── FLOATING BLOBS ─── */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.18;
+      animation: blobFloat 12s ease-in-out infinite alternate;
+    }
+    .blob-2 { animation-delay: -4s; animation-duration: 16s; }
+    .blob-3 { animation-delay: -8s; animation-duration: 20s; }
+    @keyframes blobFloat {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(40px, -60px) scale(1.12); }
+    }
+
+    /* ─── HERO TEXT ANIMATION ─── */
+    .reveal-up {
+      opacity: 0;
+      transform: translateY(60px);
+      animation: revealUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .reveal-up.d1 { animation-delay: 0.1s; }
+    .reveal-up.d2 { animation-delay: 0.28s; }
+    .reveal-up.d3 { animation-delay: 0.46s; }
+    .reveal-up.d4 { animation-delay: 0.64s; }
+    .reveal-up.d5 { animation-delay: 0.80s; }
+    @keyframes revealUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── GLITCH on brand name ─── */
+    .glitch {
+      position: relative;
+    }
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      overflow: hidden;
+      font-family: inherit;
+      font-size: inherit;
+      line-height: inherit;
+      color: inherit;
+    }
+    .glitch::before {
+      color: var(--accent);
+      clip-path: polygon(0 0, 100% 0, 100% 38%, 0 38%);
+      transform: translateX(-3px);
+      animation: glitch1 5s infinite linear;
+      opacity: 0.7;
+    }
+    .glitch::after {
+      color: var(--secondary);
+      clip-path: polygon(0 62%, 100% 62%, 100% 100%, 0 100%);
+      transform: translateX(3px);
+      animation: glitch2 5s infinite linear;
+      opacity: 0.7;
+    }
+    @keyframes glitch1 {
+      0%, 92%, 100% { transform: translateX(-3px); opacity: 0; }
+      93% { transform: translateX(-6px) skewX(-5deg); opacity: 0.7; }
+      95% { transform: translateX(3px); opacity: 0.7; }
+      97% { transform: translateX(-3px); opacity: 0; }
+    }
+    @keyframes glitch2 {
+      0%, 92%, 100% { transform: translateX(3px); opacity: 0; }
+      93% { transform: translateX(6px) skewX(5deg); opacity: 0.7; }
+      95% { transform: translateX(-3px); opacity: 0.7; }
+      97% { transform: translateX(3px); opacity: 0; }
+    }
+
+    /* ─── FEATURE CARDS ─── */
+    .feature-card {
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+      cursor: default;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: 0;
+    }
+    .feature-card:hover { transform: translateY(-8px) scale(1.02); }
+    .feature-card:hover::before { opacity: 0.08; }
+    .feature-card > * { position: relative; z-index: 1; }
+
+    .feature-card .card-number {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 5rem;
+      line-height: 1;
+      opacity: 0.06;
+      position: absolute;
+      top: -10px;
+      right: 16px;
+      color: var(--accent);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* ─── CTA BUTTON ─── */
+    .cta-btn {
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      letter-spacing: 0.08em;
+    }
+    .cta-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.15);
+      transform: translateX(-101%);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+    .cta-btn:hover::after { transform: translateX(0); }
+
+    /* ─── DIVIDER LINE ─── */
+    .marquee-sep { letter-spacing: 0.3em; }
+
+    /* ─── SCROLL FADE ─── */
+    .scroll-fade {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+    }
+    .scroll-fade.visible { opacity: 1; transform: none; }
+
+    /* ─── ABOUT SECTION BIG TEXT ─── */
+    .about-big {
+      font-size: clamp(3.5rem, 10vw, 8rem);
+      line-height: 0.92;
+      font-family: 'Bebas Neue', cursive;
+      letter-spacing: -0.01em;
+    }
+
+    /* ─── ACCENT LINE ─── */
+    .accent-line {
+      display: inline-block;
+      width: 3rem;
+      height: 3px;
+      background: var(--accent);
+      vertical-align: middle;
+      margin-right: 1rem;
+      border-radius: 2px;
+    }
+
+    /* ─── LOGO CONTAINER ─── */
+    .logo-ring {
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 0 4px rgba(233,69,96,0.12), inset 0 0 20px rgba(233,69,96,0.05);
+      animation: ringPulse 3s ease-in-out infinite;
+    }
+    @keyframes ringPulse {
+      0%, 100% { box-shadow: 0 0 0 4px rgba(233,69,96,0.12), inset 0 0 20px rgba(233,69,96,0.05); }
+      50% { box-shadow: 0 0 0 10px rgba(233,69,96,0.04), inset 0 0 30px rgba(233,69,96,0.08); }
+    }
+
+    /* ─── STAT TICKER ─── */
+    .stat-pill {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      transition: background 0.3s;
+    }
+    .stat-pill:hover { background: rgba(255,255,255,0.08); }
+
+    /* ─── FOOTER GRID ─── */
+    .footer-grid-line {
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08) 50%, transparent);
+      height: 1px;
+    }
+
+    /* ─── CORNER DECORATION ─── */
+    .corner-tl::before, .corner-br::after {
+      content: '';
+      position: absolute;
+      width: 24px; height: 24px;
+      border-color: var(--accent);
+      border-style: solid;
+      opacity: 0.5;
+    }
+    .corner-tl::before { top: 12px; left: 12px; border-width: 2px 0 0 2px; }
+    .corner-br::after  { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; }
+
+    /* ─── NAV ─── */
+    .nav-glass {
+      background: rgba(10,10,10,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* ─── SECTION LABEL ─── */
+    .section-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      opacity: 0.45;
+    }
+
+    /* ─── HERO GRID OVERLAY ─── */
+    .hero-grid {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* ─── TAG ─── */
+    .industry-tag {
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* ─── STAGGERED FEATURE DELAYS ─── */
+    .scroll-fade.d1 { transition-delay: 0s; }
+    .scroll-fade.d2 { transition-delay: 0.12s; }
+    .scroll-fade.d3 { transition-delay: 0.24s; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 640px) {
+      .glitch::before, .glitch::after { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ═══════════════════════════════════════
+       NAV
+  ═══════════════════════════════════════ -->
+  <nav class="nav-glass fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div id="nav-logo-wrap" class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center" style="background:var(--primary)">
+        <img id="nav-logo-img" src="" alt="Logo" class="w-full h-full object-cover hidden" />
+        <span id="nav-logo-initial" class="font-display text-sm" style="color:var(--accent)"></span>
+      </div>
+      <span id="nav-brand-name" class="font-display text-lg tracking-widest" style="color:var(--text)"></span>
+    </div>
+    <a href="#cta" id="nav-cta" class="cta-btn hidden sm:inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium"
+       style="background:var(--accent); color:#fff;"></a>
+  </nav>
+
+  <!-- ═══════════════════════════════════════
+       HERO
+  ═══════════════════════════════════════ -->
+  <section class="hero-grid relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-20 pb-10 px-6"
+           style="background-color:var(--bg)">
+
+    <!-- Blobs -->
+    <div class="blob w-[500px] h-[500px] -top-32 -left-32" style="background:var(--primary)" id="blob1"></div>
+    <div class="blob blob-2 w-[400px] h-[400px] top-1/2 -right-40" style="background:var(--accent)" id="blob2"></div>
+    <div class="blob blob-3 w-[350px] h-[350px] -bottom-20 left-1/4" style="background:var(--secondary)" id="blob3"></div>
+
+    <!-- Corner decoration -->
+    <div class="corner-tl corner-br absolute inset-8 pointer-events-none hidden md:block"></div>
+
+    <div class="relative z-10 flex flex-col items-center text-center max-w-5xl mx-auto">
+
+      <!-- Industry Tag -->
+      <div class="reveal-up d1">
+        <span id="hero-industry-tag" class="industry-tag inline-block px-3 py-1 rounded-full mb-8"></span>
+      </div>
+
+      <!-- Logo -->
+      <div class="reveal-up d2 mb-8">
+        <div id="hero-logo-wrap" class="logo-ring w-24 h-24 rounded-full mx-auto flex items-center justify-center overflow-hidden"
+             style="background:var(--primary)">
+          <img id="hero-logo-img" src="" alt="Logo" class="w-full h-full object-cover hidden" />
+          <span id="hero-logo-initial" class="font-display text-4xl" style="color:var(--accent)"></span>
+        </div>
+      </div>
+
+      <!-- Brand Name -->
+      <div class="reveal-up d3 overflow-hidden">
+        <h1 id="hero-brand-name"
+            class="glitch font-display text-[clamp(4rem,15vw,11rem)] leading-none tracking-tight mb-4"
+            style="color:var(--text)"
+            data-text=""></h1>
+      </div>
+
+      <!-- Tagline -->
+      <div class="reveal-up d4">
+        <p id="hero-tagline"
+           class="font-serif-italic text-[clamp(1.1rem,3vw,1.9rem)] mb-3 max-w-2xl"
+           style="color:var(--text); opacity:0.75"></p>
+      </div>
+
+      <!-- Hero Description -->
+      <div class="reveal-up d4">
+        <p id="hero-description"
+           class="text-sm sm:text-base max-w-xl mb-10 leading-relaxed"
+           style="color:var(--text); opacity:0.5"></p>
+      </div>
+
+      <!-- CTA Button -->
+      <div class="reveal-up d5 flex flex-col sm:flex-row items-center gap-4">
+        <a id="hero-cta-btn" href="#cta"
+           class="cta-btn inline-flex items-center gap-3 px-8 py-4 rounded-full font-medium text-base"
+           style="background:var(--accent); color:#fff;"></a>
+        <a href="#features"
+           class="text-sm flex items-center gap-2 transition-opacity hover:opacity-100"
+           style="color:var(--text); opacity:0.4">
+          See how it works
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12l7 7 7-7"/>
+          </svg>
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Bottom scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30">
+      <div class="w-px h-12" style="background:linear-gradient(to bottom, transparent, var(--text))"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       MARQUEE DIVIDER
+  ═══════════════════════════════════════ -->
+  <div class="overflow-hidden py-5 border-y" style="border-color:rgba(255,255,255,0.07); background:var(--primary)">
+    <div class="marquee-track" id="marquee-track">
+      <!-- Filled by JS -->
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       FEATURES
+  ═══════════════════════════════════════ -->
+  <section id="features" class="relative py-32 px-6 overflow-hidden" style="background:var(--bg)">
+    <div class="max-w-6xl mx-auto">
+
+      <div class="scroll-fade mb-20">
+        <div class="flex items-center gap-4 mb-4">
+          <span class="accent-line"></span>
+          <span class="section-label" style="color:var(--text)">What We Offer</span>
+        </div>
+        <h2 class="font-display text-[clamp(3rem,8vw,6rem)] leading-none" style="color:var(--text)">
+          BUILT FOR<br />
+          <span class="font-serif-italic font-normal" style="color:var(--accent)">your success.</span>
+        </h2>
+      </div>
+
+      <div id="features-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Filled by JS -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       ABOUT
+  ═══════════════════════════════════════ -->
+  <section id="about" class="relative py-32 px-6 overflow-hidden" style="background:var(--primary)">
+
+    <!-- Background accent shape -->
+    <div class="absolute -right-40 top-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-10"
+         style="background:var(--accent); filter:blur(120px)"></div>
+
+    <div class="max-w-6xl mx-auto relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+        <!-- Left: big text -->
+        <div class="scroll-fade">
+          <div class="flex items-center gap-4 mb-6">
+            <span class="accent-line"></span>
+            <span class="section-label" style="color:var(--text)">About Us</span>
+          </div>
+          <p class="about-big" style="color:var(--text)" id="about-big-text">WHO<br/>WE<br/>ARE.</p>
+        </div>
+
+        <!-- Right: content -->
+        <div class="scroll-fade" style="transition-delay:0.2s">
+          <div class="p-8 rounded-2xl corner-tl corner-br relative" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07)">
+            <p id="about-text" class="text-base sm:text-lg leading-relaxed mb-8" style="color:var(--text); opacity:0.75"></p>
+            <div id="about-personality" class="flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       STATS / AUDIENCE BAR
+  ═══════════════════════════════════════ -->
+  <section class="py-16 px-6" style="background:var(--bg); border-top:1px solid rgba(255,255,255,0.05)">
+    <div class="max-w-6xl mx-auto">
+      <div class="scroll-fade flex flex-wrap gap-4 justify-center" id="audience-pills">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       CTA SECTION
+  ═══════════════════════════════════════ -->
+  <section id="cta" class="relative py-40 px-6 overflow-hidden" style="background:var(--accent)">
+
+    <!-- Texture overlay on CTA -->
+    <div class="absolute inset-0 hero-grid opacity-10 pointer-events-none"></div>
+
+    <!-- Huge background brand initial -->
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+      <span id="cta-bg-letter" class="font-display text-[30vw] opacity-[0.06] select-none"
+            style="color:#fff; line-height:1"></span>
+    </div>
+
+    <div class="relative z-10 max-w-4xl mx-auto text-center">
+      <div class="scroll-fade">
+        <p class="section-label mb-6" style="color:rgba(255,255,255,0.6)">Ready to start?</p>
+        <h2 id="cta-heading" class="font-display text-[clamp(3.5rem,10vw,7.5rem)] leading-none mb-6" style="color:#fff"></h2>
+        <p id="cta-sub" class="font-serif-italic text-xl sm:text-2xl mb-12 max-w-xl mx-auto" style="color:rgba(255,255,255,0.8)"></p>
+        <a id="cta-button" href="#"
+           class="cta-btn inline-flex items-center gap-3 px-10 py-5 rounded-full font-semibold text-lg"
+           style="background:#fff; color:var(--accent)"></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════ -->
+  <footer class="py-16 px-6" style="background:var(--bg)">
+    <div class="max-w-6xl mx-auto">
+
+      <div class="footer-grid-line mb-10"></div>
+
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
+
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <div id="footer-logo-wrap" class="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center"
+                 style="background:var(--primary); border:1px solid rgba(255,255,255,0.1)">
+              <img id="footer-logo-img" src="" alt="Logo" class="w-full h-full object-cover hidden" />
+              <span id="footer-logo-initial" class="font-display text-sm" style="color:var(--accent)"></span>
+            </div>
+            <span id="footer-brand-name" class="font-display text-2xl tracking-widest" style="color:var(--text)"></span>
+          </div>
+          <p id="footer-tagline" class="font-serif-italic text-sm" style="color:var(--text); opacity:0.4"></p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <span id="footer-domain" class="text-xs font-mono" style="color:var(--accent); opacity:0.7"></span>
+          <p class="text-xs" style="color:var(--text); opacity:0.25">
+            © <span id="footer-year"></span> <span id="footer-brand-name-2"></span>. All rights reserved.
+          </p>
+          <p class="text-xs" style="color:var(--text); opacity:0.15">Built with AI Brand Engine</p>
+        </div>
+
+      </div>
+
+      <div class="footer-grid-line mt-10"></div>
+
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════
+       BRAND DATA + RENDER SCRIPT
+  ═══════════════════════════════════════ -->
+  <script>
+  // ╔══════════════════════════════════════════════════════════╗
+  // ║  🔥 INJECT YOUR BRAND DATA HERE                         ║
+  // ╚══════════════════════════════════════════════════════════╝
+  const BRAND_DATA = {
+    brand_identity: {
+      brand_name:              "NovaSpark",
+      tagline:                 "Ideas that ignite the future.",
+      industry:                "Deep Tech / AI",
+      target_audience:         "Early-stage founders & builders",
+      brand_personality:       "Bold · Visionary · Relentless · Human",
+      unique_value_proposition:"We turn raw ideas into investor-ready products in 72 hours."
+    },
+
+    design_system: {
+      primary_color:    "#0d1117",
+      secondary_color:  "#161b22",
+      accent_color:     "#f97316",
+      background_color: "#080c10",
+      text_color:       "#e8edf3"
+    },
+
+    logo: {
+      logo_prompt:       "Abstract spark / lightning bolt inside a circle, minimal, dark background",
+      logo_image_base64: ""          // ← paste base64 string here, or leave empty for initial fallback
+    },
+
+    content: {
+      hero_description: "NovaSpark is the launchpad for the next wave of world-changing products. We combine AI, design, and speed to compress your idea-to-launch timeline from months to days.",
+      features: [
+        {
+          title:       "AI-Powered Ideation",
+          description: "Our engine stress-tests your idea against market data, competitor landscapes, and emerging trends — giving you a head-start before you write a single line of code."
+        },
+        {
+          title:       "72-Hour MVP Pipeline",
+          description: "From validated concept to clickable prototype in three days. Our battle-tested sprint framework has shipped over 200 products for founders worldwide."
+        },
+        {
+          title:       "Investor-Ready Positioning",
+          description: "Get pitch decks, one-pagers, and narrative strategy that speaks the language of top-tier VCs — crafted by people who've been on both sides of the table."
+        }
+      ],
+      about_section: "We started NovaSpark because we were tired of watching brilliant ideas die in PowerPoint. Founders deserve a partner that moves as fast as they think. We are obsessive builders, experienced operators, and relentless optimists who believe that speed and quality are not a trade-off — they're a superpower.",
+      cta_text:        "Stop waiting. Start building.",
+      cta_button_text: "Launch Your Idea →"
+    },
+
+    meta: {
+      domain_checked:     true,
+      generation_version: 3,
+      created_at:         new Date().toISOString()
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────
+  // RENDER ENGINE
+  // ─────────────────────────────────────────────────────────────
+  (function render(d) {
+    const bi = d.brand_identity;
+    const ds = d.design_system;
+    const lg = d.logo;
+    const co = d.content;
+    const mt = d.meta;
+
+    // ── 1. CSS Variables ──────────────────────────────────────
+    const root = document.documentElement;
+    root.style.setProperty('--primary',   ds.primary_color);
+    root.style.setProperty('--secondary', ds.secondary_color);
+    root.style.setProperty('--accent',    ds.accent_color);
+    root.style.setProperty('--bg',        ds.background_color);
+    root.style.setProperty('--text',      ds.text_color);
+
+    // ── 2. Page Meta ─────────────────────────────────────────
+    document.getElementById('page-title').textContent = bi.brand_name + ' — ' + bi.tagline;
+
+    // ── 3. Logo Helper ───────────────────────────────────────
+    function applyLogo(wrapId, imgId, initialId) {
+      const initial = bi.brand_name.charAt(0).toUpperCase();
+      document.getElementById(initialId).textContent = initial;
+      if (lg.logo_image_base64 && lg.logo_image_base64.trim().length > 10) {
+        const img = document.getElementById(imgId);
+        img.src = lg.logo_image_base64.startsWith('data:')
+          ? lg.logo_image_base64
+          : 'data:image/png;base64,' + lg.logo_image_base64;
+        img.classList.remove('hidden');
+        document.getElementById(initialId).classList.add('hidden');
+      }
+    }
+    applyLogo('hero-logo-wrap',   'hero-logo-img',   'hero-logo-initial');
+    applyLogo('nav-logo-wrap',    'nav-logo-img',    'nav-logo-initial');
+    applyLogo('footer-logo-wrap', 'footer-logo-img', 'footer-logo-initial');
+
+    // ── 4. NAV ───────────────────────────────────────────────
+    setText('nav-brand-name', bi.brand_name.toUpperCase());
+    const navCta = document.getElementById('nav-cta');
+    navCta.textContent = co.cta_button_text;
+    navCta.classList.remove('hidden');
+
+    // ── 5. HERO ──────────────────────────────────────────────
+    setText('hero-industry-tag', '✦ ' + bi.industry + ' ✦');
+    const nameEl = document.getElementById('hero-brand-name');
+    nameEl.textContent = bi.brand_name.toUpperCase();
+    nameEl.dataset.text = bi.brand_name.toUpperCase();
+    setText('hero-tagline', bi.tagline);
+    setText('hero-description', co.hero_description);
+    document.getElementById('hero-cta-btn').textContent = co.cta_button_text;
+
+    // ── 6. MARQUEE ───────────────────────────────────────────
+    const marqueeText = [
+      bi.brand_name.toUpperCase(),
+      '✦',
+      bi.tagline,
+      '✦',
+      bi.industry.toUpperCase(),
+      '✦',
+      bi.unique_value_proposition,
+      '✦'
+    ].join('   ');
+
+    const track = document.getElementById('marquee-track');
+    // Duplicate for seamless loop
+    [0,1].forEach(() => {
+      const span = document.createElement('span');
+      span.className = 'marquee-sep whitespace-nowrap text-sm font-medium px-8';
+      span.style.color = ds.text_color;
+      span.style.opacity = '0.6';
+      span.textContent = marqueeText + '   ';
+      track.appendChild(span);
+    });
+
+    // ── 7. FEATURES GRID ─────────────────────────────────────
+    const features = (co.features && co.features.length > 0) ? co.features : [
+      { title: 'Feature One',   description: 'A key capability that sets you apart.' },
+      { title: 'Feature Two',   description: 'Another powerful reason to choose you.' },
+      { title: 'Feature Three', description: 'The third pillar of your unique offering.' }
+    ];
+
+    const grid = document.getElementById('features-grid');
+    features.forEach((f, i) => {
+      const card = document.createElement('div');
+      card.className = 'feature-card scroll-fade d' + (i + 1) + ' rounded-2xl p-8';
+      card.style.background = 'rgba(255,255,255,0.03)';
+      card.style.border = '1px solid rgba(255,255,255,0.07)';
+      card.innerHTML = `
+        <div class="card-number">${String(i + 1).padStart(2, '0')}</div>
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-6"
+             style="background:${ds.accent_color}20; border:1px solid ${ds.accent_color}40">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${ds.accent_color}" stroke-width="1.8">
+            ${featureIcon(i)}
+          </svg>
+        </div>
+        <h3 class="font-display text-2xl mb-3 tracking-wide" style="color:${ds.text_color}">${escHtml(f.title)}</h3>
+        <div class="w-8 h-0.5 mb-4 rounded" style="background:${ds.accent_color}"></div>
+        <p class="text-sm leading-relaxed" style="color:${ds.text_color}; opacity:0.6">${escHtml(f.description)}</p>
+      `;
+      grid.appendChild(card);
+    });
+
+    // ── 8. ABOUT ─────────────────────────────────────────────
+    // Pick two words from brand name for the big text
+    const aboutWords = bi.brand_name.toUpperCase().split(/\s+/);
+    document.getElementById('about-big-text').innerHTML =
+      aboutWords.length >= 2
+        ? aboutWords[0] + '<br/>' + aboutWords.slice(1).join(' ') + '.'
+        : bi.brand_name.toUpperCase() + '.';
+
+    setText('about-text', co.about_section);
+
+    // Personality pills
+    const pills = document.getElementById('about-personality');
+    bi.brand_personality.split(/[·,|·•]+/).forEach(trait => {
+      const t = trait.trim();
+      if (!t) return;
+      const pill = document.createElement('span');
+      pill.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-medium';
+      pill.style.background = ds.accent_color + '20';
+      pill.style.border = '1px solid ' + ds.accent_color + '40';
+      pill.style.color = ds.accent_color;
+      pill.style.letterSpacing = '0.1em';
+      pill.textContent = t.toUpperCase();
+      pills.appendChild(pill);
+    });
+
+    // ── 9. AUDIENCE PILLS ────────────────────────────────────
+    const audContainer = document.getElementById('audience-pills');
+    const audWords = bi.target_audience.split(/[,&\/]+/);
+    const extraPills = ['Zero to Launch', 'Built Different', 'Ship Faster'];
+    [...audWords, ...extraPills].forEach((w, i) => {
+      const t = w.trim();
+      if (!t) return;
+      const p = document.createElement('div');
+      p.className = 'stat-pill px-6 py-3 rounded-full flex items-center gap-3';
+      p.innerHTML = `
+        <span style="color:${ds.accent_color}; font-size:1.2rem">✦</span>
+        <span class="text-sm font-medium" style="color:${ds.text_color}; opacity:0.7">${escHtml(t)}</span>
+      `;
+      audContainer.appendChild(p);
+    });
+
+    // ── 10. CTA ──────────────────────────────────────────────
+    document.getElementById('cta-bg-letter').textContent = bi.brand_name.charAt(0).toUpperCase();
+    setText('cta-heading', co.cta_text);
+    setText('cta-sub', bi.unique_value_proposition);
+    document.getElementById('cta-button').textContent = co.cta_button_text;
+
+    // ── 11. FOOTER ───────────────────────────────────────────
+    setText('footer-brand-name', bi.brand_name.toUpperCase());
+    setText('footer-brand-name-2', bi.brand_name);
+    setText('footer-tagline', bi.tagline);
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+    if (mt.domain_checked) {
+      const domainEl = document.getElementById('footer-domain');
+      const slug = bi.brand_name.toLowerCase().replace(/\s+/g, '') + '.com';
+      domainEl.textContent = '🌐 ' + slug;
+    }
+
+    // ── 12. SCROLL OBSERVER ──────────────────────────────────
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.scroll-fade').forEach(el => observer.observe(el));
+
+  })(BRAND_DATA);
+
+  // ─────────────────────────────────────────────────────────────
+  // UTILS
+  // ─────────────────────────────────────────────────────────────
+  function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value || '';
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function featureIcon(i) {
+    const icons = [
+      // Zap / spark
+      '<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>',
+      // Rocket
+      '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>',
+      // Star
+      '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'
+    ];
+    return icons[i % icons.length];
+  }
+  </script>
+
+</body>
+</html>
