@@ -287,7 +287,7 @@ def generate_tagline(
         feedback_text = f"\nUser requested changes: {feedback}\nPlease incorporate this feedback."
 
     prompt = f"""
-    Generate 5 unique taglines.
+    Generate 5 unique, powerful taglines for this brand.
 
     Brand: {brand_name}
     Industry: {industry}
@@ -295,6 +295,30 @@ def generate_tagline(
 
     {exclude_text}
     {feedback_text}
+
+    IMPORTANT: Return your response as a JSON object with this exact structure:
+    {{
+        "taglines": [
+            "First tagline here",
+            "Second tagline here",
+            "Third tagline here",
+            "Fourth tagline here",
+            "Fifth tagline here"
+        ]
+    }}
+
+    Example format:
+    {{
+        "taglines": [
+            "Innovate Without Limits",
+            "Future Ready, Today",
+            "Think Forward, Move Fast",
+            "Where Ideas Take Flight",
+            "Building Tomorrow Together"
+        ]
+    }}
+
+    Return ONLY the JSON object, no other text or formatting.
     """
 
     response = client.chat.completions.create(
@@ -302,7 +326,47 @@ def generate_tagline(
         messages=[{"role": "user", "content": prompt}]
     )
 
-    return response.choices[0].message.content
+    raw_output = response.choices[0].message.content
+    
+    # Parse JSON response
+    import json
+    import re
+    
+    try:
+        # Try to parse directly
+        result = json.loads(raw_output)
+        if "taglines" in result and isinstance(result["taglines"], list):
+            return result
+    except:
+        pass
+    
+    # Fallback: try to extract JSON from the response
+    try:
+        json_match = re.search(r'\{[\s\S]*\}', raw_output)
+        if json_match:
+            result = json.loads(json_match.group())
+            if "taglines" in result and isinstance(result["taglines"], list):
+                return result
+    except:
+        pass
+    
+    # Last resort: manually parse lines
+    lines = raw_output.split('\n')
+    taglines = []
+    for line in lines:
+        line = line.strip()
+        if line and not line.startswith('{') and not line.startswith('}'):
+            # Remove numbers and bullets
+            clean = re.sub(r'^[\d\•\-\*\.\s]+', '', line)
+            if clean and len(clean) < 100:
+                taglines.append(clean)
+    
+    # Ensure we have 5
+    while len(taglines) < 5:
+        taglines.append(f"Experience the {brand_name} Difference")
+    
+    return {"taglines": taglines[:5]}
+
 
 def generate_product_description(
     brand_name: str,
