@@ -244,7 +244,8 @@ def process_intake(answers: IntakeAnswers, authorization: str = Header(None)):
         "uvp": config.unique_value_proposition,
         "brand_personality": config.brand_personality,
         "visual_style": config.visual_style_preference,
-        
+
+        "mode": "full",
         "brand_name": None,
         "tagline": None,
         "logo_prompt": None,
@@ -609,29 +610,45 @@ def generate_logo_from_session(
 
     exclude_list = session["history"]["logo_prompts"][-20:] if request.retry else None
 
-    logo_prompt = generate_logo_prompt(
-        brand_name=session["brand_name"],
-        industry=session["industry"],
-        keywords=session["keywords"],
-        exclude=exclude_list,
-        feedback=request.feedback if request.retry else None
-    )
-
-    session["history"]["logo_prompts"].append(logo_prompt)
-    session["logo_prompt"] = logo_prompt
+    # Generate 3 different logo style prompts
+    style_prompts = []
+    styles = ["minimal", "bold", "elegant"]
+    
+    for style in styles:
+        style_prompt = generate_logo_prompt(
+            brand_name=session["brand_name"],
+            industry=session["industry"],
+            keywords=session["keywords"] + f", {style} style",
+            exclude=exclude_list,
+            feedback=f"Make it {style}" + (f" - {request.feedback}" if request.feedback else "")
+        )
+        style_prompts.append({
+            "style": style.capitalize(),
+            "prompt": style_prompt,
+            "image": None
+        })
+    
+    # Store only the first prompt in history (to avoid bloat)
+    session["history"]["logo_prompts"].append(style_prompts[0]["prompt"])
+    session["logo_prompt"] = style_prompts[0]["prompt"]
     session["version"] += 1
     save_sessions()
 
-    image_base64 = generate_logo_image(logo_prompt)
-    session["logo_image"] = image_base64
-    save_sessions()
+    # Try to generate image for the first style
+    try:
+        image_base64 = generate_logo_image(style_prompts[0]["prompt"])
+        style_prompts[0]["image"] = image_base64
+        session["logo_image"] = image_base64
+        save_sessions()
+    except Exception as e:
+        print(f"⚠️ Logo image generation failed: {e}")
 
     return {
         "brand_name": session["brand_name"],
-        "logo_prompt": logo_prompt,
-        "image_base64": image_base64,
+        "logos": style_prompts,  # Return all 3 variations
         "version": session["version"]
     }
+
 
 @app.post("/api/get-colors-from-session")
 def color_palette_from_session(
@@ -726,45 +743,23 @@ def generate_tagline_from_session(
         feedback=request.feedback if request.retry else None
     )
 
-    # Store the full result in history
-    session["history"]["taglines"].append(result)
+    # result is now a dictionary with 'taglines' list
+    taglines_list = result.get("taglines", [])
     
-    # Simple parsing: take first line or first sentence
-    lines = result.split('\n')
-    first_tagline = None
-    
-    # Try to find first numbered or bullet item
-    for line in lines:
-        line = line.strip()
-        if line and (line[0].isdigit() or line[0] in ['•', '-', '*']):
-            # Clean up the line
-            if '.' in line and line[0].isdigit():
-                first_tagline = line.split('.', 1)[1].strip()
-            else:
-                first_tagline = line.lstrip('0123456789.•-* ').strip()
-            break
-    
-    # If no numbered items, take first non-empty line
-    if not first_tagline:
-        for line in lines:
-            if line.strip():
-                first_tagline = line.strip()
-                break
-    
-    # Fallback to first 50 chars
-    if not first_tagline:
-        first_tagline = result[:50] + '...' if len(result) > 50 else result
-    
-    session["tagline"] = first_tagline
+    # Store the full JSON in history
+    session["history"]["taglines"].append(json.dumps(result))
+    # Store the first one as the selected tagline
+    session["tagline"] = taglines_list[0] if taglines_list else "Tagline pending"
     session["version"] += 1
     save_sessions()
 
     return {
         "brand_name": session["brand_name"],
-        "taglines": result,
-        "selected_tagline": first_tagline,
+        "taglines": taglines_list,  # Return the list
+        "selected_tagline": session["tagline"],
         "version": session["version"]
     }
+
 
 @app.post("/api/generate-product-description")
 def generate_product_from_session(
@@ -1239,3 +1234,52 @@ def generate_website(
     
     # 6. Return HTML response
     return HTMLResponse(content=final_html)
+
+class CompetitorRequest(BaseModel):
+    url: str
+    depth: Optional[int] = 2
+
+@app.post("/api/analyze-competitor-standalone")
+def analyze_competitor_standalone(
+    request: CompetitorRequest,
+    authorization: str = Header(None)
+):
+    """
+    Standalone competitor analysis - doesn't require brand session
+    """
+    if not authorization:
+        raise HTTPException(status_code=401, detail="No auth header")
+    
+    try:
+        username, auth_session_id = authorization.split(":")
+        users = load_users()
+        if username not in users or users[username]["session_id"] != auth_session_id:
+            raise HTTPException(status_code=401, detail="Invalid auth")
+    except:
+        raise HTTPException(status_code=401, detail="Invalid auth format")
+    
+    # Call the existing competitor analysis
+    result = generate_competitor_analysis(request.url)
+    
+    return result
+
+class SetModeRequest(BaseModel):
+    mode: str  # "full", "name", "logo", "tagline", "colors", "competitor"
+
+@app.post("/api/set-mode")
+def set_mode(
+    request: SetModeRequest,
+    authorization: str = Header(None)
+):
+    session_id = get_session_from_auth_dependency(authorization)
+    if not session_id:
+        return {"error": "No active brand session"}
+    
+    session = brand_sessions.get(session_id)
+    if not session:
+        return {"error": "Session not found"}
+    
+    session["mode"] = request.mode
+    save_sessions()
+    
+    return {"success": True, "mode": request.mode}
